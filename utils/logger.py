@@ -16,7 +16,7 @@ class Logger:
 
     def _get_file_handler(self):
         file_handler = logging.FileHandler(
-            os.path.join(os.path.dirname(__file__), 'logs', f'{self.filename}.log')
+            os.path.join(os.path.dirname(__file__), '..', 'logs', f'{self.filename}.log')
         )
         file_handler.setLevel(logging.WARNING)
         file_handler.setFormatter(logging.Formatter(self.log_format))

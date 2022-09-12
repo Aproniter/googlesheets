@@ -2,13 +2,14 @@ import os
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.expression import literal
-from datetime import datetime
 from dotenv import load_dotenv
-import random
 
 from models import Order
+from logger import Logger
+
 
 load_dotenv()
+logger = Logger('db', 'db').get_logger()
 
 engine = sqlalchemy.create_engine(os.getenv('PG_URI'), echo=False)
 Session = sessionmaker(bind=engine)
@@ -34,26 +35,43 @@ def add_orders(data:tuple) -> bool:
         s.commit()
         return True
     except sqlalchemy.exc.IntegrityError as e:
-        print(e)
+        logger.error('Ошибка БД', exc_info=True)
         return False
 
 
 def get_all_orders() -> list:
     """Функция получения всех данных из БД.
     Возвращает список объектов"""
-    s = Session()
-    return s.query(Order).all()
+    try:
+        s = Session()
+        results = s.query(Order).all()
+        return results
+    except sqlalchemy.exc.DatabaseError:
+        logger.error('Ошибка БД', exc_info=True)
+
+
+def delete_order_by_order_number(order_number):
+    try:
+        s = Session()
+        s.query(Order).filter(Order.order_number == order_number).delete()
+        s.commit()
+        return True
+    except sqlalchemy.exc.DatabaseError:
+        logger.error('Ошибка БД', exc_info=True)
+        return False
 
 
 if __name__ =='__main__':
-    data = (
-        {
-        'order_number': 25,
-        'price_dollars': round(a := random.randint(600,2000)/3, 2),
-        'price_rub': round(a * 6.24, 2),
-        'delivery_time': datetime.now().strftime('%d.%m.%Y')
-    },# for i in range(12, 25)
-    )
+    # data = (
+    #     {
+    #     'order_number': 25,
+    #     'price_dollars': round(a := random.randint(600,2000)/3, 2),
+    #     'price_rub': round(a * 6.24, 2),
+    #     'delivery_time': datetime.now().strftime('%d.%m.%Y')
+    # },# for i in range(12, 25)
+    # )
     # add_orders(data)
-    print(get_all_orders())
+    # delete_order_by_order_number(25)
+    for i in get_all_orders():
+        print(i.order_number, i.price_dollars, i.price_rub, i.delivery_time)
     
