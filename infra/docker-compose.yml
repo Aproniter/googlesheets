@@ -40,8 +40,7 @@ services:
     command: >
       bash -c '
       cd utils/celery_dir &&
-      celery -A celery_tasks worker -l info &&
-      celery -A celery_tasks beat -l info'
+      celery -A celery_tasks worker -l info -B'
     volumes:
       - ../backend/logs:/app/logs
     links:
@@ -51,6 +50,3 @@ services:
       - redis
     env_file:
       - ../.env
-
-      # celery -A celery_task worker -l info
-      # celery -A celery_tasks worker

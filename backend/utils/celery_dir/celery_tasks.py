@@ -30,7 +30,7 @@ app.conf.update(
 def test():
     logger.error('test task')
 
-@app.task
+@app.task(name='utils.celery_dir.celery_tasks.auto_test')
 def auto_test():
     logger.error('auto_test task')
 
@@ -39,7 +39,7 @@ app.autodiscover_tasks()
 
 app.conf.beat_schedule = {
     'send-report-every-single-minute': {
-        'task': 'auto_test',
+        'task': 'utils.celery_dir.celery_tasks.auto_test',
         # 'schedule': crontab(),
         'schedule': 10.0,
     },
