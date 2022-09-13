@@ -3,9 +3,10 @@ import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.expression import literal
 from dotenv import load_dotenv
+from datetime import datetime
 
-from models import Order
-from logger import Logger
+from .models import Order
+from .logger import Logger
 
 
 load_dotenv()
@@ -23,7 +24,7 @@ def add_orders(data:tuple) -> bool:
         order_number=order['order_number'],
         price_dollars=order['price_dollars'],
         price_rub=order['price_rub'],
-        delivery_time=order['delivery_time']
+        delivery_time=datetime.strptime(order['delivery_time'], '%d.%m.%Y')
     )) for order in data if (
         not s.query(           # Добавляем только объекты с номером заказа, 
         literal(True)).filter( # которых нет в БД
@@ -48,6 +49,18 @@ def get_all_orders() -> list:
         return results
     except sqlalchemy.exc.DatabaseError:
         logger.error('Ошибка БД', exc_info=True)
+
+
+def get_order_by_order_number(order_number):
+    try:
+        s = Session()
+        order = s.query(Order).filter(Order.order_number == order_number)
+        if order:
+            return order
+        return False
+    except sqlalchemy.exc.DatabaseError:
+        logger.error('Ошибка БД', exc_info=True)
+        return False
 
 
 def delete_order_by_order_number(order_number):

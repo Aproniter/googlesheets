@@ -1,6 +1,9 @@
 version: "3.3"
 services:
-  postgres:
+  redis:
+    image: redis:alpine
+    container_name: redis
+  db:
     image: postgres:13.3
     environment:
       POSTGRES_DB: "ordersDB"
@@ -12,3 +15,42 @@ services:
       - ./postgres-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+  api:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    command: python app_api.py
+    environment:
+      TZ: Europe/Moscow
+    container_name: api
+    volumes:
+      - ../backend/logs:/app/logs
+    ports:
+      - 5000:5000
+    depends_on:
+      - redis
+      - db
+    env_file:
+      - ../.env
+  celery:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: celery
+    command: >
+      bash -c '
+      cd utils/celery_dir &&
+      celery -A celery_tasks worker -l info &&
+      celery -A celery_tasks beat -l info'
+    volumes:
+      - ../backend/logs:/app/logs
+    links:
+      - redis
+    depends_on:
+      - api
+      - redis
+    env_file:
+      - ../.env
+
+      # celery -A celery_task worker -l info
+      # celery -A celery_tasks worker

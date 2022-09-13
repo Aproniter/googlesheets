@@ -132,3 +132,4 @@ dmypy.json
 /.vscode
 /infra/postgres-data
 /backend/logs
+/backend/celery_vol
