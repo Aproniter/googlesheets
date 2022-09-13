@@ -39,7 +39,7 @@ services:
     container_name: celery
     command: >
       bash -c '
-      cd utils/celery_dir &&
+      cd utils &&
       celery -A celery_tasks worker -l info -B'
     volumes:
       - ../backend/logs:/app/logs

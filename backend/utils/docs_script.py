@@ -1,4 +1,5 @@
 import os
+import sys
 import requests
 import json
 import xmltodict
@@ -7,14 +8,18 @@ import redis
 from datetime import datetime
 from dotenv import load_dotenv
 
-from .logger import Logger
-# from .sheets_script import SheetsHelper
-from . import db
+utils_dir = (
+    os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+)
+sys.path.append(utils_dir)
+
+from logger import Logger
+from sheets_script import SheetsHelper
+import db
 
 load_dotenv()
 logger = Logger('docs_script', 'docs_script').get_logger()
-# sheets_helper = SheetsHelper()
-# ws = sheets_helper.get_worksheet()
+
 
 redis_client = redis.Redis(
     host=os.getenv('REDIS_HOST'),
@@ -38,21 +43,25 @@ def get_rate():
         logger.error('Ошибка получения нового курса.', exc_info=True)
 
 
-# def get_new_data():
-#     print(ws.get_all_records())
+def get_new_data():
+    sheets_helper = SheetsHelper()
+    ws = sheets_helper.get_worksheet()
+    print(ws.get_all_records())
 
-# def get_new_data_to_db():
-#     data = ws.get_all_records()
-#     dollars_rate = get_rate()
-#     if db.add_orders(
-#         ({
-#             'order_number': order['заказ №'],
-#             'price_dollars': order['стоимость,$'],
-#             'price_rub': round(order['стоимость,$'] * dollars_rate, 2),
-#             'delivery_time': order['срок поставки']
-#         } for order in data)
-#     ):
-#         logger.info('Новые данные добавлены в БД.')
+def get_new_data_to_db():
+    sheets_helper = SheetsHelper()
+    ws = sheets_helper.get_worksheet()
+    data = ws.get_all_records()
+    dollars_rate = get_rate()
+    if db.add_orders(
+        ({
+            'order_number': order['заказ №'],
+            'price_dollars': order['стоимость,$'],
+            'price_rub': round(order['стоимость,$'] * dollars_rate, 2),
+            'delivery_time': order['срок поставки']
+        } for order in data)
+    ):
+        logger.info('Новые данные добавлены в БД.')
 
 
 if __name__ == '__main__':

@@ -1,13 +1,18 @@
 import os
+import sys
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.expression import literal
 from dotenv import load_dotenv
 from datetime import datetime
 
-from .models import Order
-from .logger import Logger
+utils_dir = (
+    os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+)
+sys.path.append(utils_dir)
 
+from models import Order
+from logger import Logger
 
 load_dotenv()
 logger = Logger('db', 'db').get_logger()
@@ -32,6 +37,8 @@ def add_orders(data:tuple) -> bool:
         ).first())
     )
     try:
+        if len(new_orders) == 0:
+            return
         s.add_all(new_orders)
         s.commit()
         return True

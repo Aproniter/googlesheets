@@ -1,14 +1,20 @@
 import json
 from datetime import datetime
+import os
+import sys
 
 from flask import Flask
 from flask_restful import Api, Resource, reqparse
 
 from dotenv import load_dotenv
 
-from utils import db, models, docs_script
+utils_dir = (
+    os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+)
+sys.path.append(utils_dir)
+
+import utils
 from utils.logger import Logger
-from utils.celery_dir.celery_tasks import test
 
 load_dotenv()
 logger = Logger('main_api', 'main_api').get_logger()
@@ -22,11 +28,10 @@ class Order(Resource):
 
     def get(self, order_number=0):
         """Получить все заказы или заказ по order_number"""
-        test.delay()
         if order_number == 0:
-            items_db = db.get_all_orders()
+            items_db = utils.db.get_all_orders()
         else:
-            items_db = db.get_order_by_order_number(order_number)
+            items_db = utils.db.get_order_by_order_number(order_number)
         orders = [{
                 'order_id': order.id,
                 'order_number' : order.order_number,
@@ -58,7 +63,7 @@ class Order(Resource):
             'delivery_time': params['delivery_time'],
         },
         )
-        db.add_orders(data)
+        utils.db.add_orders(data)
         return data, 200
 
 api.add_resource(
