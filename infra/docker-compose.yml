@@ -14,7 +14,7 @@ services:
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
       - ./postgres-data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - '5432:5432'
   api:
     build:
       context: ../backend
@@ -26,27 +26,37 @@ services:
     volumes:
       - ../backend/logs:/app/logs
     ports:
-      - 5000:5000
+      - '5000:5000'
     depends_on:
       - redis
       - db
     env_file:
-      - ../.env
-  # celery:
-  #   build:
-  #     context: ../backend
-  #     dockerfile: Dockerfile
-  #   container_name: celery
-  #   command: >
-  #     bash -c '
-  #     cd utils &&
-  #     celery -A celery_tasks worker -l info -B'
-  #   volumes:
-  #     - ../backend/logs:/app/logs
-  #   links:
-  #     - redis
-  #   depends_on:
-  #     - api
-  #     - redis
-  #   env_file:
-  #     - ../.env
+      - ./.env
+  client:
+    build:
+      context: ../front
+      dockerfile: Dockerfile
+    container_name: front
+    ports:
+      - '3000:3000'
+    depends_on:
+      - api
+  celery:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: celery
+    command: >
+      bash -c '
+      cd utils &&
+      celery -A celery_tasks worker -l info -B'
+    volumes:
+      - ../backend/logs:/app/logs
+    links:
+      - redis
+    depends_on:
+      - api
+      - redis
+      - client
+    env_file:
+      - ./.env

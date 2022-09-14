@@ -65,4 +65,4 @@ def get_new_data_to_db():
 
 
 if __name__ == '__main__':
-    print(get_rate())
+    get_new_data_to_db()

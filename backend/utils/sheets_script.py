@@ -1,12 +1,11 @@
 import os
 import gspread
-import json
 
 from gspread import Worksheet
 from dotenv import load_dotenv
 
 load_dotenv()
-ACCOUNT_SETTINGS = os.getenv('ACCOUNT_SETTINGS') # Абсолютный путь до файла конфигурации сервисного аккаунта Google
+
 
 class SheetsHelper:
     """Класс для работы с документом GoogleSheets.
@@ -18,7 +17,12 @@ class SheetsHelper:
     def __init__(
         self,
         book_name:str='test',
-        service_account_settings_file_path:str=ACCOUNT_SETTINGS
+        service_account_settings_file_path:str=os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            '..',
+            '.config',
+            'service_account.json'
+        )
     ):
         self.sas_file = service_account_settings_file_path
         self.service_account = gspread.service_account(
