@@ -17,7 +17,7 @@ Docker-compose
 
 
 ### Запуск проекта
-- В папку googlesheets\backend\.config добавить файл с конфигурацией сервисного аккаунта GoogleAPI с именем service_account.json
+- В папку googlesheets\backend\\.config добавить файл с конфигурацией сервисного аккаунта GoogleAPI с именем service_account.json
 
 - В папку googlesheets\infra добавить .env файл с содержимым:
     - PG_URI=postgresql://<логин>:<пароль>@<хост>:<порт>/ordersDB
