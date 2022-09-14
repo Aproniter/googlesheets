@@ -3,6 +3,7 @@ from datetime import datetime
 
 from flask import Flask, request
 from flask_restful import Api, Resource, reqparse
+from flask_cors import CORS
 
 from dotenv import load_dotenv
 
@@ -13,6 +14,7 @@ load_dotenv()
 logger = Logger('main_api', 'main_api').get_logger()
 
 app = Flask(__name__)
+CORS(app)
 api = Api(app)
 
 
@@ -23,6 +25,7 @@ class Order(Resource):
         """Получить все заказы или заказ по order_number
         или заказы с пропущенной датой доставки"""
         missed_true = request.args.get('missed')
+        limit = request.args.get('limit')
         if missed_true == '1':
             items_db = db.get_orders_missed_delivery_date()
             orders = [{
@@ -35,7 +38,10 @@ class Order(Resource):
             ]
             return orders, 200
         if order_number == 0:
-            items_db = db.get_all_orders()
+            if limit:
+                items_db = db.get_orders_limit(int(limit))
+            else:
+                items_db = db.get_all_orders()
         else:
             items_db = db.get_order_by_order_number(order_number)
         orders = [{

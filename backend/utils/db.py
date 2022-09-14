@@ -62,6 +62,19 @@ def get_all_orders() -> list:
         logger.error('Ошибка БД', exc_info=True)
 
 
+def get_orders_limit(limit) -> list:
+    """Функция получения ограниченного
+    количества записей."""
+    try:
+        s = Session()
+        results = s.query(Order).order_by(
+            Order.delivery_time
+        ).limit(limit)
+        return results
+    except sqlalchemy.exc.DatabaseError:
+        logger.error('Ошибка БД', exc_info=True)
+
+
 def get_orders_missed_delivery_date() -> list:
     """Функция получения из БД заказов с прошедшей
     датой поставки. Возвращает список объектов."""

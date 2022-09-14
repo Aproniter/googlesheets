@@ -32,21 +32,21 @@ services:
       - db
     env_file:
       - ../.env
-  celery:
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
-    container_name: celery
-    command: >
-      bash -c '
-      cd utils &&
-      celery -A celery_tasks worker -l info -B'
-    volumes:
-      - ../backend/logs:/app/logs
-    links:
-      - redis
-    depends_on:
-      - api
-      - redis
-    env_file:
-      - ../.env
+  # celery:
+  #   build:
+  #     context: ../backend
+  #     dockerfile: Dockerfile
+  #   container_name: celery
+  #   command: >
+  #     bash -c '
+  #     cd utils &&
+  #     celery -A celery_tasks worker -l info -B'
+  #   volumes:
+  #     - ../backend/logs:/app/logs
+  #   links:
+  #     - redis
+  #   depends_on:
+  #     - api
+  #     - redis
+  #   env_file:
+  #     - ../.env
