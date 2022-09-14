@@ -128,7 +128,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-/backend/.config
+/backend/.config/
 /.vscode
 /infra/postgres-data
 /backend/logs
