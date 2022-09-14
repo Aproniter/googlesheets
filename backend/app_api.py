@@ -78,8 +78,11 @@ class Order(Resource):
         db.add_orders(data)
         return data, 200
 
+
 api.add_resource(
     Order, '/orders', '/orders/', '/orders/<int:order_number>'
 )
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

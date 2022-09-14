@@ -90,6 +90,7 @@ def get_orders_missed_delivery_date() -> list:
 
 
 def get_order_by_order_number(order_number):
+    """Функция получения из БД заказа по order_number"""
     try:
         s = Session()
         order = s.query(Order).filter(Order.order_number == order_number)
@@ -102,6 +103,7 @@ def get_order_by_order_number(order_number):
 
 
 def delete_order_by_order_number(order_number):
+    """Функция удаления из БД заказа по order_number"""
     try:
         s = Session()
         s.query(Order).filter(Order.order_number == order_number).delete()
@@ -113,16 +115,5 @@ def delete_order_by_order_number(order_number):
 
 
 if __name__ =='__main__':
-    # data = (
-    #     {
-    #     'order_number': 25,
-    #     'price_dollars': round(a := random.randint(600,2000)/3, 2),
-    #     'price_rub': round(a * 6.24, 2),
-    #     'delivery_time': datetime.now().strftime('%d.%m.%Y')
-    # },# for i in range(12, 25)
-    # )
-    # add_orders(data)
-    # delete_order_by_order_number(25)
     for i in get_orders_missed_delivery_date():
         print(i.order_number, i.price_dollars, i.price_rub, i.delivery_time)
-    

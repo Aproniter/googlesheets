@@ -34,10 +34,12 @@ app.conf.update(
 
 @app.task(name='utils.celery_tasks.auto_get_data')
 def auto_get_data():
+    """Функция Celery для автоматического пополнения БД из GoogleSheets"""
     docs_script.get_new_data_to_db()
 
 @app.task(name='utils.celery_tasks.auto_get_orders_missed_delivery')
 def auto_get_orders_missed_delivery():
+    """Функция Celery для проверки просроченных заказов и отправка их в телеграмм"""
     missed_orders = [f"""Просроченный заказ:
     Номер заказа: {order.order_number}
     Цена$: {order.price_dollars}

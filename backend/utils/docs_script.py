@@ -1,11 +1,9 @@
 import os
 import sys
 import requests
-import json
 import xmltodict
 import redis
 
-from datetime import datetime
 from dotenv import load_dotenv
 
 utils_dir = (
@@ -21,15 +19,17 @@ load_dotenv()
 logger = Logger('docs_script', 'docs_script').get_logger()
 
 
-redis_client = redis.Redis(
-    host=os.getenv('REDIS_HOST'),
-    port=os.getenv('REDIS_PORT')
-)
-
-
 def get_rate():
-    if redis_client.exists('rate'):
-        return float(redis_client.get('rate'))
+    """Функуия получения текущего курса доллара"""
+    try:
+        redis_client = redis.Redis(
+        host=os.getenv('REDIS_HOST'),
+        port=os.getenv('REDIS_PORT')
+        )
+        if redis_client.exists('rate'):
+            return float(redis_client.get('rate'))
+    except:
+        pass
     res = requests.get('https://cbr.ru/scripts/XML_daily.asp')
     try:
         new_rate = float([
@@ -44,11 +44,14 @@ def get_rate():
 
 
 def get_new_data():
+    """Функуия получения данных из GoogleSheet"""
     sheets_helper = SheetsHelper()
     ws = sheets_helper.get_worksheet()
     print(ws.get_all_records())
 
 def get_new_data_to_db():
+    """Функуия получения данных из GoogleSheet
+    и добавления их в БД"""
     sheets_helper = SheetsHelper()
     ws = sheets_helper.get_worksheet()
     data = ws.get_all_records()
@@ -65,4 +68,4 @@ def get_new_data_to_db():
 
 
 if __name__ == '__main__':
-    get_new_data_to_db()
+    get_new_data()
