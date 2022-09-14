@@ -6,7 +6,7 @@ from gspread import Worksheet
 from dotenv import load_dotenv
 
 load_dotenv()
-ACCOUNT_SETTINGS = os.getenv('ACCOUNT_SETTINGS')
+ACCOUNT_SETTINGS = os.getenv('ACCOUNT_SETTINGS') # Абсолютный путь до файла конфигурации сервисного аккаунта Google
 
 class SheetsHelper:
     """Класс для работы с документом GoogleSheets.

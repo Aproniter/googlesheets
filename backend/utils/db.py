@@ -11,8 +11,12 @@ utils_dir = (
 )
 sys.path.append(utils_dir)
 
-from models import Order
-from logger import Logger
+try:
+    from models import Order
+    from logger import Logger
+except ModuleNotFoundError:
+    from .models import Order
+    from .logger import Logger
 
 load_dotenv()
 logger = Logger('db', 'db').get_logger()
@@ -37,9 +41,9 @@ def add_orders(data:tuple) -> bool:
         ).first())
     )
     try:
-        if len(new_orders) == 0:
-            return
         s.add_all(new_orders)
+        if len(s.new) == 0:
+            return
         s.commit()
         return True
     except sqlalchemy.exc.IntegrityError as e:
@@ -49,10 +53,24 @@ def add_orders(data:tuple) -> bool:
 
 def get_all_orders() -> list:
     """Функция получения всех данных из БД.
-    Возвращает список объектов"""
+    Возвращает список объектов."""
     try:
         s = Session()
-        results = s.query(Order).all()
+        results = s.query(Order).order_by(Order.delivery_time).all()
+        return results
+    except sqlalchemy.exc.DatabaseError:
+        logger.error('Ошибка БД', exc_info=True)
+
+
+def get_orders_missed_delivery_date() -> list:
+    """Функция получения из БД заказов с прошедшей
+    датой поставки. Возвращает список объектов."""
+    try:
+        date = datetime.now()
+        s = Session()
+        results = s.query(Order).filter(
+            Order.delivery_time < date
+        ).order_by(Order.delivery_time)
         return results
     except sqlalchemy.exc.DatabaseError:
         logger.error('Ошибка БД', exc_info=True)
@@ -92,6 +110,6 @@ if __name__ =='__main__':
     # )
     # add_orders(data)
     # delete_order_by_order_number(25)
-    for i in get_all_orders():
+    for i in get_orders_missed_delivery_date():
         print(i.order_number, i.price_dollars, i.price_rub, i.delivery_time)
     

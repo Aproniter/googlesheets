@@ -1,19 +1,12 @@
 import json
 from datetime import datetime
-import os
-import sys
 
-from flask import Flask
+from flask import Flask, request
 from flask_restful import Api, Resource, reqparse
 
 from dotenv import load_dotenv
 
-utils_dir = (
-    os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-)
-sys.path.append(utils_dir)
-
-import utils
+from utils import db
 from utils.logger import Logger
 
 load_dotenv()
@@ -27,11 +20,24 @@ class Order(Resource):
     """Класс работы с заказами из API"""
 
     def get(self, order_number=0):
-        """Получить все заказы или заказ по order_number"""
+        """Получить все заказы или заказ по order_number
+        или заказы с пропущенной датой доставки"""
+        missed_true = request.args.get('missed')
+        if missed_true == '1':
+            items_db = db.get_orders_missed_delivery_date()
+            orders = [{
+                'order_id': order.id,
+                'order_number' : order.order_number,
+                'price_dollars' : order.price_dollars,
+                'price_rub' : order.price_rub,
+                'delivery_time' : order.delivery_time.strftime('%d.%m.%Y')
+                }for order in items_db
+            ]
+            return orders, 200
         if order_number == 0:
-            items_db = utils.db.get_all_orders()
+            items_db = db.get_all_orders()
         else:
-            items_db = utils.db.get_order_by_order_number(order_number)
+            items_db = db.get_order_by_order_number(order_number)
         orders = [{
                 'order_id': order.id,
                 'order_number' : order.order_number,
@@ -63,7 +69,7 @@ class Order(Resource):
             'delivery_time': params['delivery_time'],
         },
         )
-        utils.db.add_orders(data)
+        db.add_orders(data)
         return data, 200
 
 api.add_resource(
