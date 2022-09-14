@@ -39,7 +39,7 @@ def auto_get_data():
 
 @app.task(name='utils.celery_tasks.auto_get_orders_missed_delivery')
 def auto_get_orders_missed_delivery():
-    """Функция Celery для проверки просроченных заказов и отправка их в телеграмм"""
+    """Функция Celery для проверки просроченных заказов и отправка их в телеграмм через бота"""
     missed_orders = [f"""Просроченный заказ:
     Номер заказа: {order.order_number}
     Цена$: {order.price_dollars}
